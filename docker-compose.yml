@@ -1,0 +1,39 @@
+﻿
+# Only the backend API is containerised for deployment.
+
+services:
+  #  ASP.NET Core Minimal API (IIE, 2026) 
+  smartx-api:
+    build:
+      context: ./SmartX.Api
+      dockerfile: Dockerfile
+    image: smartx-api:latest
+    container_name: smartx-api
+    ports:
+      # Host port 5000 → container port 8080 (Microsoft Docs, 2026).
+      - "5000:8080"
+    environment:
+      # Override for Development to enable Swagger if needed (Microsoft Docs, 2026).
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+    volumes:
+      # Persist uploaded files outside the container (Docker Docs, 2026).
+      - ./SmartX.Api/Uploads:/app/Uploads
+    restart: unless-stopped
+    healthcheck:
+      # Health check on the dashboard endpoint (Docker Docs, 2026).
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/api/dashboard/summary"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+# Named volumes (optional — uncomment if you prefer managed volumes)
+# volumes:
+#   uploads:
+
+# Reference List
+# Docker Docs, 2026. Compose file reference. [online] Available at: <https://docs.docker.com/compose/compose-file/> [Accessed 13 September 2026].
+# Docker Docs, 2026. Compose healthcheck. [online] Available at: <https://docs.docker.com/compose/compose-file/05-services/#healthcheck> [Accessed 13 September 2026].
+# IIE, 2026. PROG7312 POE. The Independent Institute of Education (Pty) Ltd.
+# Microsoft Docs, 2026. Host ASP.NET Core in Docker. [online] Available at: <https://learn.microsoft.com/en-us/aspnet/core/host-and-deploy/docker/> [Accessed 13 September 2026].

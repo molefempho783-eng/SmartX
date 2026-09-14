@@ -1,0 +1,287 @@
+﻿<!--
+  Telemetry dashboard: live fleet overview with severity-coded log,
+  per-device roll-up, and anomaly alerting (IIE, 2026).
+-->
+<ContentPage
+    x:Class="SmartX.Maui.Pages.TelemetryDashboardPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:models="clr-namespace:SmartX.Maui.Models"
+    Title="Telemetry Dashboard"
+    BackgroundColor="#f5f7fa">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="14">
+
+            <!-- Header: title, connection state, freshness (IIE, 2026). -->
+            <FlexLayout Direction="Row" Wrap="Wrap" JustifyContent="SpaceBetween"
+                        AlignItems="Center">
+                <VerticalStackLayout Spacing="2">
+                    <Label Text="Telemetry Dashboard" FontSize="24"
+                           FontAttributes="Bold" TextColor="#1F4E79" />
+                    <Label x:Name="LastUpdatedLabel"
+                           Text="Waiting for first poll..."
+                           FontSize="11" TextColor="#6c757d" />
+                </VerticalStackLayout>
+
+                <Border x:Name="StatusPill" BackgroundColor="#e0e0e0"
+                        Padding="12,6" StrokeThickness="0"
+                        StrokeShape="RoundRectangle 20">
+                    <Label x:Name="StatusLabel" Text="Connecting..."
+                           FontSize="11" FontAttributes="Bold" TextColor="#616161" />
+                </Border>
+            </FlexLayout>
+
+            <!-- Key metrics (IIE, 2026). -->
+            <FlexLayout Direction="Row" Wrap="Wrap" JustifyContent="Start">
+
+                <Border BackgroundColor="White" Padding="18" Margin="0,0,10,10"
+                        StrokeThickness="0" StrokeShape="RoundRectangle 8"
+                        MinimumWidthRequest="150">
+                    <VerticalStackLayout Spacing="2">
+                        <Label x:Name="TotalSensorsLabel" Text="0" FontSize="30"
+                               FontAttributes="Bold" TextColor="#1F4E79"
+                               HorizontalOptions="Center" />
+                        <Label Text="Registered Sensors" FontSize="11"
+                               TextColor="#6c757d" HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border BackgroundColor="White" Padding="18" Margin="0,0,10,10"
+                        StrokeThickness="0" StrokeShape="RoundRectangle 8"
+                        MinimumWidthRequest="150">
+                    <VerticalStackLayout Spacing="2">
+                        <Label x:Name="TotalReadingsLabel" Text="0" FontSize="30"
+                               FontAttributes="Bold" TextColor="#1F4E79"
+                               HorizontalOptions="Center" />
+                        <Label Text="Total Readings" FontSize="11"
+                               TextColor="#6c757d" HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border BackgroundColor="White" Padding="18" Margin="0,0,10,10"
+                        StrokeThickness="0" StrokeShape="RoundRectangle 8"
+                        MinimumWidthRequest="150">
+                    <VerticalStackLayout Spacing="2">
+                        <Label x:Name="ActiveDevicesLabel" Text="0" FontSize="30"
+                               FontAttributes="Bold" TextColor="#1F4E79"
+                               HorizontalOptions="Center" />
+                        <Label Text="Reporting Devices" FontSize="11"
+                               TextColor="#6c757d" HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Pulses when anomalies are present (IIE, 2026). -->
+                <Border x:Name="AnomalyCard" BackgroundColor="White"
+                        Padding="18" Margin="0,0,10,10"
+                        StrokeThickness="0" StrokeShape="RoundRectangle 8"
+                        MinimumWidthRequest="150">
+                    <VerticalStackLayout Spacing="2">
+                        <Label x:Name="AnomalyCountLabel" Text="0" FontSize="30"
+                               FontAttributes="Bold" TextColor="#1F4E79"
+                               HorizontalOptions="Center" />
+                        <Label Text="Anomalies Detected" FontSize="11"
+                               TextColor="#6c757d" HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </Border>
+            </FlexLayout>
+
+            <!-- Most recent breach, surfaced above the fold (IIE, 2026). -->
+            <Border x:Name="AlertBanner" IsVisible="False"
+                    BackgroundColor="#F8CECC" Padding="14"
+                    StrokeThickness="0" StrokeShape="RoundRectangle 8">
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                    <Label Grid.Column="0" Text="!" FontSize="22"
+                           FontAttributes="Bold" TextColor="#991b1b"
+                           VerticalOptions="Center" />
+                    <VerticalStackLayout Grid.Column="1" Spacing="2">
+                        <Label Text="Threshold breach" FontSize="13"
+                               FontAttributes="Bold" TextColor="#991b1b" />
+                        <Label x:Name="AlertDetailLabel" Text=""
+                               FontSize="12" TextColor="#991b1b"
+                               LineBreakMode="WordWrap" />
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
+
+            <!-- Feed controls (IIE, 2026). -->
+            <Border BackgroundColor="White" Padding="12"
+                    StrokeThickness="0" StrokeShape="RoundRectangle 8">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Filter by severity" FontSize="11"
+                           FontAttributes="Bold" TextColor="#6c757d" />
+                    <FlexLayout Direction="Row" Wrap="Wrap" JustifyContent="Start">
+                        <Button x:Name="FilterAllButton" Text="All"
+                                CommandParameter="All" Clicked="OnFilterClicked"
+                                FontSize="12" HeightRequest="34" Padding="14,0"
+                                Margin="0,0,8,0"
+                                BackgroundColor="#1F4E79" TextColor="White" />
+                        <Button x:Name="FilterCriticalButton" Text="Critical"
+                                CommandParameter="Critical" Clicked="OnFilterClicked"
+                                FontSize="12" HeightRequest="34" Padding="14,0"
+                                Margin="0,0,8,0"
+                                BackgroundColor="#f0f0f0" TextColor="#333" />
+                        <Button x:Name="FilterNormalButton" Text="Normal"
+                                CommandParameter="Normal" Clicked="OnFilterClicked"
+                                FontSize="12" HeightRequest="34" Padding="14,0"
+                                Margin="0,0,8,0"
+                                BackgroundColor="#f0f0f0" TextColor="#333" />
+                        <Button x:Name="FilterInfoButton" Text="Info"
+                                CommandParameter="Info" Clicked="OnFilterClicked"
+                                FontSize="12" HeightRequest="34" Padding="14,0"
+                                Margin="0,0,8,0"
+                                BackgroundColor="#f0f0f0" TextColor="#333" />
+                    </FlexLayout>
+
+                    <FlexLayout Direction="Row" Wrap="Wrap" JustifyContent="Start">
+                        <Button x:Name="LiveToggleButton" Text="Pause live feed"
+                                Clicked="OnToggleLiveClicked"
+                                FontSize="12" HeightRequest="34" Padding="14,0"
+                                Margin="0,0,8,0"
+                                BackgroundColor="#f0f0f0" TextColor="#333" />
+                        <Button Text="Refresh now" Clicked="OnRefreshClicked"
+                                FontSize="12" HeightRequest="34" Padding="14,0"
+                                BackgroundColor="#f0f0f0" TextColor="#333" />
+                    </FlexLayout>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Per-device roll-up built from the log (IIE, 2026). -->
+            <Label Text="Reporting Devices" FontSize="16"
+                   FontAttributes="Bold" TextColor="#1F4E79" />
+
+            <VerticalStackLayout x:Name="DeviceList" Spacing="8"
+                                 BindableLayout.EmptyView="No device has reported yet.">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="models:DeviceStatus">
+                        <Border BackgroundColor="White" Padding="14"
+                                StrokeThickness="0" StrokeShape="RoundRectangle 8">
+                            <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="12"
+                                  RowDefinitions="Auto,Auto">
+
+                                <Label Grid.Column="0" Grid.Row="0"
+                                       Text="{Binding DeviceId}"
+                                       FontSize="14" FontAttributes="Bold"
+                                       TextColor="#1F4E79"
+                                       LineBreakMode="TailTruncation" />
+
+                                <Label Grid.Column="0" Grid.Row="1"
+                                       Text="{Binding LastSensor}"
+                                       FontSize="11" TextColor="#6c757d"
+                                       LineBreakMode="TailTruncation" />
+
+                                <Label Grid.Column="1" Grid.Row="0"
+                                       Text="{Binding LastReading}"
+                                       FontSize="15" FontAttributes="Bold"
+                                       FontFamily="Courier New" TextColor="#333"
+                                       HorizontalTextAlignment="End" />
+
+                                <Label Grid.Column="1" Grid.Row="1"
+                                       Text="{Binding LastSeen}"
+                                       FontSize="10" TextColor="#9aa0a6"
+                                       HorizontalTextAlignment="End" />
+
+                                <Border Grid.Column="2" Grid.RowSpan="2"
+                                        BackgroundColor="{Binding StatusBackground}"
+                                        Padding="10,5" StrokeThickness="0"
+                                        StrokeShape="RoundRectangle 14"
+                                        VerticalOptions="Center">
+                                    <Label Text="{Binding StatusText}"
+                                           FontSize="10" FontAttributes="Bold"
+                                           TextColor="{Binding StatusColor}" />
+                                </Border>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </VerticalStackLayout>
+
+            <!-- Live severity-coded log, newest first (IIE, 2026). -->
+            <FlexLayout Direction="Row" Wrap="Wrap" JustifyContent="SpaceBetween"
+                        AlignItems="Center">
+                <Label Text="Live Telemetry Log" FontSize="16"
+                       FontAttributes="Bold" TextColor="#1F4E79" />
+                <Label x:Name="LogCountLabel" Text="" FontSize="11"
+                       TextColor="#6c757d" />
+            </FlexLayout>
+
+            <Border BackgroundColor="#1e1e1e" Padding="10"
+                    StrokeThickness="0" StrokeShape="RoundRectangle 8"
+                    MinimumHeightRequest="320">
+                <VerticalStackLayout Spacing="4">
+
+                    <!-- Column headings so every field is labelled (IIE, 2026). -->
+                    <Grid ColumnDefinitions="16,74,*,Auto" ColumnSpacing="10"
+                          Padding="8,4">
+                        <Label Grid.Column="1" Text="TIME" FontSize="10"
+                               FontAttributes="Bold" TextColor="#7d8590" />
+                        <Label Grid.Column="2" Text="DEVICE / SENSOR" FontSize="10"
+                               FontAttributes="Bold" TextColor="#7d8590" />
+                        <Label Grid.Column="3" Text="READING" FontSize="10"
+                               FontAttributes="Bold" TextColor="#7d8590" />
+                    </Grid>
+
+                    <CollectionView x:Name="LogCollectionView">
+                        <CollectionView.EmptyView>
+                            <Label Text="No telemetry matches this filter yet."
+                                   FontSize="12" TextColor="#888" Padding="10" />
+                        </CollectionView.EmptyView>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:LogEntry">
+                                <Border BackgroundColor="{Binding BackgroundColor}"
+                                        Padding="8" Margin="0,2"
+                                        StrokeThickness="0"
+                                        StrokeShape="RoundRectangle 4">
+                                    <Grid ColumnDefinitions="16,74,*,Auto"
+                                          RowDefinitions="Auto,Auto"
+                                          ColumnSpacing="10">
+
+                                        <Ellipse Grid.Column="0" Grid.RowSpan="2"
+                                                 WidthRequest="10" HeightRequest="10"
+                                                 Fill="{Binding IndicatorColor}"
+                                                 VerticalOptions="Center" />
+
+                                        <Label Grid.Column="1" Grid.RowSpan="2"
+                                               Text="{Binding Time}"
+                                               FontSize="12" FontFamily="Courier New"
+                                               TextColor="{Binding TextColor}"
+                                               VerticalOptions="Center" />
+
+                                        <Label Grid.Column="2" Grid.Row="0"
+                                               Text="{Binding DeviceId}"
+                                               FontSize="13" FontAttributes="Bold"
+                                               TextColor="{Binding TextColor}"
+                                               LineBreakMode="TailTruncation" />
+
+                                        <Label Grid.Column="2" Grid.Row="1"
+                                               Text="{Binding SensorType}"
+                                               FontSize="11" Opacity="0.75"
+                                               TextColor="{Binding TextColor}"
+                                               LineBreakMode="TailTruncation" />
+
+                                        <Label Grid.Column="3" Grid.RowSpan="2"
+                                               Text="{Binding Reading}"
+                                               FontSize="15" FontAttributes="Bold"
+                                               FontFamily="Courier New"
+                                               TextColor="{Binding TextColor}"
+                                               VerticalOptions="Center"
+                                               HorizontalTextAlignment="End" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Border>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
+
+<!--
+  Reference List
+  IIE, 2026. PROG7312 POE. The Independent Institute of Education (Pty) Ltd.
+  Microsoft Docs, 2026. Animation in .NET MAUI. [online] Available at: <https://learn.microsoft.com/en-us/dotnet/maui/user-interface/animation/> [Accessed 13 September 2026].
+  Microsoft Docs, 2026. Bindable layouts in .NET MAUI. [online] Available at: <https://learn.microsoft.com/en-us/dotnet/maui/user-interface/layouts/bindablelayout> [Accessed 13 September 2026].
+  Microsoft Docs, 2026. CollectionView in .NET MAUI. [online] Available at: <https://learn.microsoft.com/en-us/dotnet/maui/user-interface/controls/collectionview/> [Accessed 13 September 2026].
+-->

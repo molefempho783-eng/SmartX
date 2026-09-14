@@ -1,0 +1,83 @@
+### Base URL for all requests (IIE, 2026).
+@baseUrl = http://localhost:5000
+
+### 1. Register a sensor — POST JSON (Microsoft Docs, 2026).
+POST {{baseUrl}}/api/sensors/register
+Content-Type: application/json
+
+{
+  "macAddress": "AA:BB:CC:DD:EE:01",
+  "location": "Room 4, Zone B",
+  "category": "Environmental"
+}
+
+### 2. Send moisture telemetry (float — Generics demo) (IIE, 2026).
+POST {{baseUrl}}/api/telemetry/moisture
+Content-Type: application/json
+
+{
+  "deviceId": "AA:BB:CC:DD:EE:01",
+  "sensorType": "SoilMoisture",
+  "value": 15.5,
+  "unit": "%"
+}
+
+### 3. Send power telemetry (int — Generics demo) (IIE, 2026).
+POST {{baseUrl}}/api/telemetry/power
+Content-Type: application/json
+
+{
+  "deviceId": "METER_01",
+  "sensorType": "Wattage",
+  "value": 620,
+  "unit": "W"
+}
+
+### 4. Send valve telemetry (bool — Generics demo) (IIE, 2026).
+POST {{baseUrl}}/api/telemetry/valve
+Content-Type: application/json
+
+{
+  "deviceId": "VALVE_01",
+  "sensorType": "ValveState",
+  "value": true,
+  "unit": ""
+}
+
+### 5. Validate deployment tree (Recursion demo) (IIE, 2026).
+POST {{baseUrl}}/api/deployment/validate
+Content-Type: application/json
+
+{
+  "name": "Facility A",
+  "nodeType": "Facility",
+  "isConfigured": true,
+  "children": [
+    {
+      "name": "Zone 1",
+      "nodeType": "Zone",
+      "isConfigured": true,
+      "children": [
+        {
+          "name": "Sub-Zone B",
+          "nodeType": "Sub-Zone",
+          "isConfigured": true,
+          "children": [
+            { "name": "Sensor M-01", "nodeType": "Sensor", "isConfigured": true, "children": [] },
+            { "name": "Sensor M-02", "nodeType": "Sensor", "isConfigured": false, "children": [] }
+          ]
+        }
+      ]
+    }
+  ]
+}
+
+### 6. Operator overloading demo (IIE, 2026).
+GET {{baseUrl}}/api/demo/operator-overloading
+
+### 7. Dashboard summary (IIE, 2026).
+GET {{baseUrl}}/api/dashboard/summary
+
+### Reference List
+### IIE, 2026. PROG7312 POE. The Independent Institute of Education (Pty) Ltd.
+### Microsoft Docs, 2026. Use .http files in Visual Studio. [online] Available at: <https://learn.microsoft.com/en-us/aspnet/core/test/http-files> [Accessed 12 September 2026].

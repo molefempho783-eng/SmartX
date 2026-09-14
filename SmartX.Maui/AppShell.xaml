@@ -1,0 +1,53 @@
+﻿<!-- 
+  MAUI Shell provides routing and flyout navigation (Microsoft Docs, 2026).
+  ShellContent defines top-level routes (Microsoft Docs, 2026).
+  
+  Reference List
+  Microsoft Docs, 2026. .NET MAUI Shell. [online] Available at: <https://learn.microsoft.com/en-us/dotnet/maui/fundamentals/shell/> [Accessed 12 September 2026].
+-->
+<Shell
+    x:Class="SmartX.Maui.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:pages="clr-namespace:SmartX.Maui.Pages"
+    Title="Smart-X IoT Gateway"
+    FlyoutBehavior="Flyout"
+
+    Shell.BackgroundColor="#1F4E79"
+    Shell.ForegroundColor="White"
+    Shell.TitleColor="White"
+    Shell.DisabledColor="#B4C6D9"
+    Shell.UnselectedColor="#D6E2EF"
+
+    FlyoutBackgroundColor="White">
+
+    <Shell.ItemTemplate>
+        <DataTemplate>
+            <Grid Padding="18,14" BackgroundColor="White">
+                <Label Text="{Binding Title}"
+                       FontSize="15"
+                       TextColor="#1a1a1a"
+                       VerticalOptions="Center" />
+            </Grid>
+        </DataTemplate>
+    </Shell.ItemTemplate>
+
+    <!-- Landing page route (IIE, 2026). -->
+    <ShellContent
+        Title="Home"
+        ContentTemplate="{DataTemplate pages:LandingPage}"
+        Route="LandingPage" />
+
+    <!-- Sensor registration route (IIE, 2026). -->
+    <ShellContent
+        Title="Sensor Registration"
+        ContentTemplate="{DataTemplate pages:SensorRegistrationPage}"
+        Route="SensorRegistrationPage" />
+
+    <!-- Telemetry dashboard route (IIE, 2026). -->
+    <ShellContent
+        Title="Telemetry Dashboard"
+        ContentTemplate="{DataTemplate pages:TelemetryDashboardPage}"
+        Route="TelemetryDashboardPage" />
+
+</Shell>

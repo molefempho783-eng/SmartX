@@ -1,0 +1,136 @@
+﻿<!-- 
+  Rubric requirement: sensor registration with MAC, location, category (IIE, 2026).
+-->
+<ContentPage
+    x:Class="SmartX.Maui.Pages.SensorRegistrationPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:models="clr-namespace:SmartX.Maui.Models"
+    Title="Sensor Registration"
+    BackgroundColor="#f5f7fa">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="15">
+
+            <Label Text="📡 Sensor Registration" FontSize="24"
+                   FontAttributes="Bold" TextColor="#1F4E79" />
+
+            <!-- Registration form card (IIE, 2026). -->
+            <Border BackgroundColor="White" Padding="20"
+                    StrokeThickness="0" StrokeShape="RoundRectangle 8">
+                <VerticalStackLayout Spacing="15">
+
+                    <!-- MAC Address input (IIE, 2026). -->
+                    <VerticalStackLayout Spacing="5">
+                        <Label Text="MAC Address" FontAttributes="Bold" FontSize="14" TextColor="#333" />
+                        <Entry x:Name="MacEntry"
+                               Placeholder="AA:BB:CC:DD:EE:FF"
+                               Keyboard="Text"
+                               TextColor="#1a1a1a"
+                               PlaceholderColor="#9aa0a6"
+                               BackgroundColor="Transparent" />
+                    </VerticalStackLayout>
+
+                    <!-- Location input (IIE, 2026). -->
+                    <VerticalStackLayout Spacing="5">
+                        <Label Text="Deployment Location" FontAttributes="Bold" FontSize="14" TextColor="#333" />
+                        <Entry x:Name="LocationEntry"
+                               Placeholder="Room 4, Zone B"
+                               TextColor="#1a1a1a"
+                               PlaceholderColor="#9aa0a6"
+                               BackgroundColor="Transparent" />
+                    </VerticalStackLayout>
+
+                    <!-- Category picker (IIE, 2026). -->
+                    <VerticalStackLayout Spacing="5">
+                        <Label Text="Sensor Category" FontAttributes="Bold" FontSize="14" TextColor="#333" />
+                        <Picker x:Name="CategoryPicker" SelectedIndex="0"
+                                TextColor="#1a1a1a"
+                                TitleColor="#9aa0a6"
+                                BackgroundColor="Transparent">
+                            <Picker.ItemsSource>
+                                <x:Array Type="{x:Type x:String}">
+                                    <x:String>Environmental</x:String>
+                                    <x:String>Power Consumption</x:String>
+                                    <x:String>Actuator</x:String>
+                                </x:Array>
+                            </Picker.ItemsSource>
+                        </Picker>
+                    </VerticalStackLayout>
+
+                    <!-- File picker for attachment (Microsoft Docs, 2026). -->
+                    <VerticalStackLayout Spacing="5">
+                        <Label Text="Attach Config File / Photo (optional)"
+                               FontAttributes="Bold" FontSize="14" TextColor="#333" />
+                        <Button x:Name="PickFileButton"
+                                Text="📎 Choose File"
+                                Clicked="OnPickFileClicked"
+                                BackgroundColor="#f0f0f0"
+                                TextColor="#333" />
+                        <Label x:Name="SelectedFileLabel"
+                               Text="No file selected"
+                               FontSize="12"
+                               TextColor="#888" />
+                    </VerticalStackLayout>
+
+                    <!-- Submit button (IIE, 2026). -->
+                    <Button x:Name="RegisterButton"
+                            Text="Register Sensor"
+                            Clicked="OnRegisterClicked"
+                            BackgroundColor="#1F4E79"
+                            TextColor="White"
+                            FontAttributes="Bold" />
+
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Status message (IIE, 2026). -->
+            <Border x:Name="MessageBorder"
+                    IsVisible="False"
+                    Padding="12"
+                    StrokeThickness="0"
+                    StrokeShape="RoundRectangle 6">
+                <Label x:Name="MessageLabel" FontSize="14" />
+            </Border>
+
+            <!-- Registered sensors list (IIE, 2026). -->
+            <Label Text="Registered Sensors" FontSize="18"
+                   FontAttributes="Bold" TextColor="#1F4E79" Margin="0,10,0,0" />
+
+            <CollectionView x:Name="SensorCollectionView">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:SensorRegistration">
+                        <Border BackgroundColor="White" Padding="15"
+                                Margin="0,0,0,8"
+                                StrokeThickness="0"
+                                StrokeShape="RoundRectangle 8">
+                            <VerticalStackLayout Spacing="5">
+                                <Label Text="{Binding MacAddress}"
+                                       FontAttributes="Bold"
+                                       TextColor="#1F4E79" />
+                                <Label Text="{Binding Location}"
+                                       FontSize="12"
+                                       TextColor="#666" />
+                                <Label Text="{Binding Category}"
+                                       FontSize="12"
+                                       TextColor="#666" />
+                                <Label Text="● Active"
+                                       FontSize="11"
+                                       TextColor="#10b981"
+                                       FontAttributes="Bold" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
+
+<!--   
+  Reference List
+  IIE, 2026. PROG7312 Module Manual. The Independent Institute of Education (Pty) Ltd.
+  Microsoft Docs, 2026. File picker in .NET MAUI. [online] Available at: <https://learn.microsoft.com/en-us/dotnet/maui/platform-integration/storage/file-picker> [Accessed 12 September 2026].
+  Microsoft Docs, 2026. CollectionView in .NET MAUI. [online] Available at: <https://learn.microsoft.com/en-us/dotnet/maui/user-interface/controls/collectionview/> [Accessed 12 September 2026].
+-->
