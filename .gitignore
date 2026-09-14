@@ -1,0 +1,36 @@
+## .NET build output
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+artifacts/
+
+## Visual Studio / Rider / VS Code
+.vs/
+.idea/
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## MAUI / mobile build artefacts
+*.apk
+*.aab
+*.ipa
+*.app/
+*.binlog
+
+## Runtime output from the API
+SmartX.Api/Uploads/
+
+## OS noise
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+
+## NuGet
+*.nupkg
+packages/
+.nuget/
